@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -18,7 +17,7 @@ type Database struct {
 func Connect() (*Database, error) {
 	// Construct the connection string
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
+		"localhost", "5432", "local", "docker", "go_asset_db")
 
 	// Open a connection to the database
 	db, err := sql.Open("postgres", connStr)
@@ -34,9 +33,4 @@ func Connect() (*Database, error) {
 	log.Println("Connected to the database")
 
 	return &Database{Conn: db}, nil
-}
-
-// Close closes the database connection
-func (db *Database) Close() error {
-	return db.Conn.Close()
 }
