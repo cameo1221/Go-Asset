@@ -21,10 +21,17 @@ func main() {
 	// Initialize your asset model with the database connection
 	assetModel := &models.AssetModel{DB: database.Conn}
 	adminModel := &models.AdminModel{DB: database.Conn}
+	employeeModel := &models.EmployeeModel{DB: database.Conn}
+	employeeAssetModel := &models.EmployeeAssetModel{DB: database.Conn}
+	sessionModel := &models.SessionModel{DB: database.Conn}
 
 	// Initialize your asset handler with the asset model
 	assetHandler := handler.NewAssetHandler(assetModel)
 	adminHandler := handler.NewAdminHandler(adminModel)
+	employeeHandler := handler.NewEmployeeHandler(employeeModel)
+	employeeAssetHandler := handler.NewEmployeeassetHandler(employeeAssetModel)
+	sessionHandler := handler.NewSessionHandler(sessionModel)
+
 
 
 	// Initialize a new mux router
@@ -33,6 +40,9 @@ func main() {
 	// Register asset routes with the router
 	handler.RegisterAssetRoutes(router, assetHandler)
 	handler.RegisterAdminRoutes(router, adminHandler)
+	handler.RegisterEmployeeRoutes(router, employeeHandler)
+	handler.RegisterEmployeeassetRoutes(router, employeeAssetHandler)
+	handler.RegisterSessionRoutes(router, sessionHandler)
 
 
 	// Start the HTTP server

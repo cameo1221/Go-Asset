@@ -14,7 +14,7 @@ type Employee struct {
 	Email      string    `json:"email"`
 	Role       string    `json:"role"`
 	CreatedAt  time.Time `json:"created_at"`
-	ArchivedAt time.Time `json:"archived_at,omitempty"`
+	ArchivedAt *time.Time `json:"archive_at,omitempty"`
 }
 
 // EmployeeModel represents the model for employee operations
@@ -25,18 +25,18 @@ type EmployeeModel struct {
 // CreateEmployee creates a new employee in the database
 func (em *EmployeeModel) CreateEmployee(employee *Employee) error {
 	query := `
-		INSERT INTO employee (name, email, role, created_at)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO employee (id, name, email, role, created_at)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id
 	`
 
-	var id uuid.UUID
-	err := em.DB.QueryRow(query, employee.Name, employee.Email, employee.Role, employee.CreatedAt).Scan(&id)
+	employee.ID = uuid.New()
+	err := em.DB.QueryRow(query, employee.ID,employee.Name, employee.Email, employee.Role, employee.CreatedAt).Scan(&employee.ID)
 	if err != nil {
 		return err
 	}
 
-	employee.ID = id
+	
 	return nil
 }
 
@@ -44,7 +44,7 @@ func (em *EmployeeModel) CreateEmployee(employee *Employee) error {
 func (em *EmployeeModel) UpdateEmployee(employee *Employee) error {
 	query := `
 		UPDATE employee
-		SET name = $1, email = $2, role = $3, archived_at = $4
+		SET name = $1, email = $2, role = $3, archive_at = $4
 		WHERE id = $5
 	`
 
@@ -53,10 +53,10 @@ func (em *EmployeeModel) UpdateEmployee(employee *Employee) error {
 }
 
 // ArchiveEmployee archives an existing employee in the database
-func (em *EmployeeModel) ArchiveEmployee(id int) error {
+func (em *EmployeeModel) ArchiveEmployee(id uuid.UUID) error {
 	query := `
 		UPDATE employee
-		SET archived_at = $1
+		SET archive_at = $1
 		WHERE id = $2
 	`
 
@@ -65,9 +65,9 @@ func (em *EmployeeModel) ArchiveEmployee(id int) error {
 }
 
 // GetEmployeeByID retrieves an employee from the database by its ID
-func (em *EmployeeModel) GetEmployeeByID(id int) (*Employee, error) {
+func (em *EmployeeModel) GetEmployeeByID(id uuid.UUID) (*Employee, error) {
 	query := `
-		SELECT id, name, email, role, created_at, archived_at
+		SELECT id, name, email, role, created_at, archive_at
 		FROM employee
 		WHERE id = $1
 	`
@@ -84,7 +84,7 @@ func (em *EmployeeModel) GetEmployeeByID(id int) (*Employee, error) {
 // GetAllEmployees retrieves all employees from the database
 func (em *EmployeeModel) GetAllEmployees() ([]*Employee, error) {
 	query := `
-		SELECT id, name, email, role, created_at, archived_at
+		SELECT id, name, email, role, created_at, archive_at
 		FROM employee
 	`
 

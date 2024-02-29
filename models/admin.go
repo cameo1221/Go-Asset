@@ -8,30 +8,24 @@ import (
 	"github.com/google/uuid"
 )
 
-// Admin represents an admin user in the system
 type Admin struct {
 	ID         uuid.UUID `json:"id"`
 	Name       string    `json:"name"`
 	Email      string    `json:"email"`
 	Password   string    `json:"-"`
 	CreatedAt  time.Time `json:"created_at"`
-	ArchivedAt time.Time `json:"archived_at,omitempty"`
+	ArchivedAt *time.Time `json:"archive_at,omitempty"`
 }
 
-// AdminModel represents the model for admin operations
 type AdminModel struct {
 	DB *sql.DB
 }
 
-// CreateAdmin creates a new admin user in the database
 func (am *AdminModel) CreateAdmin(admin *Admin) error {
-	// Generate a new UUID for the asset ID
 	admin.ID = uuid.New()
 
-	// Write the SQL statement for inserting an asset into the database
 	err := am.DB.QueryRow("INSERT INTO admin (id, name, email, Password, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id",admin.ID, admin.Name, admin.Email, admin.Password, time.Now()).Scan(&admin.ID)
 
-	// Execute the SQL statement and check for errors
 
 	if err != nil {
 		return fmt.Errorf("error creating admin: %w", err)
@@ -41,11 +35,10 @@ func (am *AdminModel) CreateAdmin(admin *Admin) error {
 }
 
 
-// UpdateAdmin updates an existing admin user in the database
 func (am *AdminModel) UpdateAdmin(admin *Admin) error {
 	query := `
 		UPDATE admin
-		SET name = $1, email = $2, password = $3, archived_at = $4
+		SET name = $1, email = $2, password = $3, archive_at = $4
 		WHERE id = $5
 	`
 	
@@ -53,11 +46,10 @@ func (am *AdminModel) UpdateAdmin(admin *Admin) error {
 	return err
 }
 
-// ArchiveAdmin archives an existing admin user in the database
 func (am *AdminModel) ArchiveAdmin(id uuid.UUID) error {
 	query := `
 		UPDATE admin
-		SET archived_at = $1
+		SET archive_at = $1
 		WHERE id = $2
 	`
 
@@ -65,10 +57,9 @@ func (am *AdminModel) ArchiveAdmin(id uuid.UUID) error {
 	return err
 }
 
-// GetAdminByID retrieves an admin user from the database by its ID
 func (am *AdminModel) GetAdminByID(id uuid.UUID) (*Admin, error) {
 	query := `
-		SELECT id, name, email, password, created_at, archived_at
+		SELECT id, name, email, password, created_at, archive_at
 		FROM admin
 		WHERE id = $1
 	`
@@ -82,10 +73,9 @@ func (am *AdminModel) GetAdminByID(id uuid.UUID) (*Admin, error) {
 	return admin, nil
 }
 
-// GetAllAdmins retrieves all admin users from the database
 func (am *AdminModel) GetAllAdmins() ([]*Admin, error) {
 	query := `
-		SELECT id, name, email, password, created_at, archived_at
+		SELECT id, name, email, password, created_at, archive_at
 		FROM admin
 	`
 
