@@ -1,5 +1,3 @@
-Here is an attempt to make the README more visually appealing and descriptive for the Go asset management API project:
-
 # Go Asset Management REST API 🛠️
 
 A **production-ready boilerplate REST API for managing assets** built with Golang, PostgreSQL, Docker and Docker Compose. Easy to extend and customize to your needs.
